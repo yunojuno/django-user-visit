@@ -1,0 +1,8 @@
+[run]
+include = request_profiler/*
+omit =
+    request_profiler/tests.py
+    request_profiler/migrations/*
+    .tox/*
+
+

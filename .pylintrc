@@ -1,0 +1,17 @@
+[MASTER]
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()));"
+ignore = .git,.tox,.cache,.venv
+
+[MESSAGES CONTROL]
+disable = all
+enable =
+    broad-except,
+    dangerous-default-value,
+    relative-beyond-top-level,
+    anomalous-backslash-in-string,
+    logging-not-lazy
+
+[REPORTS]
+output-format = text
+reports = no
+score = no
