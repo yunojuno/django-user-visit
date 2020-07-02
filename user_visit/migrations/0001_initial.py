@@ -63,7 +63,10 @@ class Migration(migrations.Migration):
                         verbose_name="User agent (raw)",
                     ),
                 ),
-                ("uuid", models.UUIDField(default=uuid.uuid4, editable=False)),
+                (
+                    "uuid",
+                    models.UUIDField(default=uuid.uuid4, editable=False, unique=True),
+                ),
                 (
                     "user",
                     models.ForeignKey(
