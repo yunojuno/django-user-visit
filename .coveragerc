@@ -1,8 +1,8 @@
 [run]
-include = request_profiler/*
+include = user_visit/*
 omit =
-    request_profiler/tests.py
-    request_profiler/migrations/*
+    user_visit/tests.py
+    user_visit/migrations/*
     .tox/*
 
 

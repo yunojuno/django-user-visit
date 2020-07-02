@@ -1,9 +1,93 @@
 from __future__ import annotations
 
+import datetime
+
 import user_agents
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+
+
+class RequestParser:
+    """Parse HttpRequest object."""
+
+    def __init__(self, request: HttpRequest) -> None:
+        """
+        Initialise parser from HttpRequest object.
+
+        Raises ValueError if the request.user is not authenticated.
+
+        """
+        if not request.user:
+            raise ValueError("Request object has no user.")
+        if request.user.is_anonymous:
+            raise ValueError("Request user is anonymous.")
+        self.request = request
+
+    @property
+    def remote_addr(self) -> str:
+        """Extract client IP from request."""
+        x_forwarded_for = self.request.headers.get("X-Forwarded-For")
+        if x_forwarded_for:
+            return x_forwarded_for.split(",")[0]
+        return self.request.META.get("REMOTE_ADDR", "")
+
+    @property
+    def session_key(self) -> str:
+        """Extract session id from request."""
+        return self.request.session.session_key or ""
+
+    @property
+    def ua_string(self) -> str:
+        """Extract client user-agent from request."""
+        return self.request.headers.get("User-Agent", "")
+
+
+class UserVisitManager(models.Manager):
+    """Custom model manager for UserVisit objects."""
+
+    def record(
+        self, request: HttpRequest, timestamp: datetime.datetime = timezone.now()
+    ) -> Optional[UserVisit]:
+        """
+        Record a new user visit.
+        
+        This method will look for an existing UserVisit for the date (extracted
+        from the timestamp), matching the session, user-agent and remote_addr
+        properties. If any of these have changed, we create a new object. This
+        ensures that we get one record per day, per user, per session, device
+        and IP address. If any of these change, we get a new record.
+
+        Returns the UserVisit object that is found or created.
+
+        """
+        parser = RequestParser(request)
+        try:
+            uv = UserVisit.objects.get(
+                user=request.user,
+                timestamp__date=timestamp.date(),
+                session_key=parser.session_key,
+                ua_string=parser.ua_string,
+                remote_addr=parser.remote_addr,
+            )
+        except UserVisit.DoesNotExist:
+            uv = UserVisit.objects.create(
+                user=request.user,
+                timestamp=timestamp,
+                session_key=parser.session_key,
+                ua_string=parser.ua_string,
+                remote_addr=parser.remote_addr,
+            )
+        # this should never happen, but race condition.
+        except UserVisit.MultipleObjectsReturned:
+            uv = UserVisit.objects.filter(
+                user=request.user,
+                timestamp__date=timestamp.date(),
+                session_key=parser.session_key,
+                ua_string=parser.ua_string,
+                remote_addr=parser.remote_addr,
+            ).last()
+        return uv
 
 
 class UserVisit(models.Model):
@@ -30,7 +114,8 @@ class UserVisit(models.Model):
         settings.AUTH_USER_MODEL, related_name="user_visits", on_delete=models.CASCADE
     )
     timestamp = models.DateTimeField(
-        help_text="When the user visit was recorded", default=timezone.now
+        help_text="The time at which the first visit of the day was recorded",
+        default=timezone.now,
     )
     session_key = models.CharField(help_text="Django session identifier", max_length=40)
     remote_addr = models.CharField(
@@ -44,6 +129,8 @@ class UserVisit(models.Model):
     ua_string = models.TextField(
         "User Agent", help_text="Client User-Agent HTTP header", blank=True,
     )
+    
+    objects = UserVisitManager()
 
     def __str__(self) -> str:
         return f"{self.user} visited the site on {self.timestamp}"
@@ -55,3 +142,8 @@ class UserVisit(models.Model):
     def user_agent(self) -> user_agents.parsers.UserAgent:
         """Return UserAgent object from the raw user_agent string."""
         return user_agents.parsers.parse(self.ua_string)
+
+    @property 
+    def date(self) -> datetime.date:
+        """Extract the date of the visit from the timestamp."""
+        return self.timestamp.date()
