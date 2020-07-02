@@ -1,7 +1,6 @@
 import typing
 
 from django.http import HttpRequest, HttpResponse
-from django.utils import timezone
 
 from .models import UserVisit
 
@@ -13,6 +12,9 @@ class UserVisitMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> typing.Optional[HttpResponse]:
-        if request.user and request.user.is_authenticated:
+        # this will fail hard if session or authentication middleware are
+        # not configured.
+        if request.user.is_authenticated:
             UserVisit.objects.record(request)
+
         return self.get_response(request)

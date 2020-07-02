@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import datetime
+from typing import Optional
 
 import user_agents
 from django.conf import settings
 from django.db import models
+from django.http import HttpRequest
 from django.utils import timezone
 
 
@@ -51,7 +53,7 @@ class UserVisitManager(models.Manager):
     ) -> Optional[UserVisit]:
         """
         Record a new user visit.
-        
+
         This method will look for an existing UserVisit for the date (extracted
         from the timestamp), matching the session, user-agent and remote_addr
         properties. If any of these have changed, we create a new object. This
@@ -129,7 +131,7 @@ class UserVisit(models.Model):
     ua_string = models.TextField(
         "User Agent", help_text="Client User-Agent HTTP header", blank=True,
     )
-    
+
     objects = UserVisitManager()
 
     def __str__(self) -> str:
@@ -143,7 +145,7 @@ class UserVisit(models.Model):
         """Return UserAgent object from the raw user_agent string."""
         return user_agents.parsers.parse(self.ua_string)
 
-    @property 
+    @property
     def date(self) -> datetime.date:
         """Extract the date of the visit from the timestamp."""
         return self.timestamp.date()
