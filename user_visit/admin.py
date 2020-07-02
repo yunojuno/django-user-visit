@@ -14,7 +14,14 @@ class UserVisitAdmin(admin.ModelAdmin):
         "ua_string",
     )
     raw_id_fields = ("user",)
-    readonly_fields = ("user", "timestamp", "session_key", "remote_addr", "ua_string")
+    readonly_fields = (
+        "user",
+        "timestamp",
+        "session_key",
+        "remote_addr",
+        "user_agent",
+        "ua_string",
+    )
 
 
 admin.site.register(UserVisit, UserVisitAdmin)

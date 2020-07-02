@@ -31,7 +31,9 @@ class Migration(migrations.Migration):
                     "timestamp",
                     models.DateTimeField(
                         default=django.utils.timezone.now,
-                        help_text="When the user visit was recorded",
+                        help_text=(
+                            "The time at which the first visit of the day was recorded"
+                        ),
                     ),
                 ),
                 (
@@ -56,7 +58,7 @@ class Migration(migrations.Migration):
                     models.TextField(
                         blank=True,
                         help_text="Client User-Agent HTTP header",
-                        verbose_name="User Agent",
+                        verbose_name="User agent (raw)",
                     ),
                 ),
                 (
