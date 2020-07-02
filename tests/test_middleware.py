@@ -1,4 +1,4 @@
-import pytest 
+import pytest
 from unittest import mock
 
 from django.contrib.auth import get_user_model
@@ -17,14 +17,14 @@ class MockSession(object):
     def session_key(self):
         return "test"
 
-@pytest.mark.django_db
+# @pytest.mark.django_db
 class TestUserVisitMiddleware:
     """RequestTokenMiddleware tests."""
 
-    def get_request(self):
+    def get_request(self, user):
         request = RequestFactory().get("/")
-        request.user = AnonymousUser()  # get_user_model().objects.create_user("zoidberg")
         request.session = MockSession()
+        request.user = user or AnonymousUser()
         return request
 
     def get_middleware(self):
@@ -33,17 +33,15 @@ class TestUserVisitMiddleware:
     @mock.patch.object(UserVisitManager, "record")
     def test_middleware__anon(self, mock_record):
         """Check that anonymous users are ignored."""
-        request = self.get_request()
+        request = self.get_request(AnonymousUser())
         middleware = self.get_middleware()
-        request.user = AnonymousUser()
         middleware(request)
         assert mock_record.call_count == 0
 
     @mock.patch.object(UserVisitManager, "record")
     def test_middleware__auth(self, mock_record):
         """Check that authenticated users are recorded."""
-        request = self.get_request()
-        request.user = User()
+        request = self.get_request(User())
         middleware = self.get_middleware()
         middleware(request)
         assert mock_record.call_count == 1

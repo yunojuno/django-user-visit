@@ -3,6 +3,7 @@ include = user_visit/*
 omit =
     user_visit/tests.py
     user_visit/migrations/*
+    user_visit/apps.py
     .tox/*
 
 
