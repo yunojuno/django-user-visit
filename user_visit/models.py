@@ -97,18 +97,14 @@ class UserVisit(models.Model):
     Record of a user visiting the site on a given day.
 
     This is used for tracking and reporting - knowing the volume of visitors
-    to the site, and being able to report, Github heatmap-style on someone's
-    interaction with the site.
+    to the site, and being able to report on someone's interaction with the site.
 
-    The goal is very simple - a single record of each day that someone visits
-    the site - irrespective of session mechanics (so **not** a record of last
-    logged in).
+    We record minimal info required to identify user sessions, plus changes in
+    IP and device. This is useful in identifying suspicious activity (multiple
+    logins from different locations).
 
-    Workflow as follows:
-
-    On each request, check for a cached visit; if one exists, and it's for today,
-    then carry on. If it is not for today, or does not exist, save a new visit
-    for today, and cache the new value.
+    Also helpful in identifying support issues (as getting useful browser data
+    out of users can be very difficult over live chat).
 
     """
 
