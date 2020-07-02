@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import uuid
 from typing import Optional
 
 import user_agents
@@ -127,6 +128,7 @@ class UserVisit(models.Model):
     ua_string = models.TextField(
         "User agent (raw)", help_text="Client User-Agent HTTP header", blank=True,
     )
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
 
     objects = UserVisitManager()
 
