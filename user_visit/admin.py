@@ -22,6 +22,7 @@ class UserVisitAdmin(admin.ModelAdmin):
         "user_agent",
         "ua_string",
     )
+    ordering = ("-timestamp",)
 
 
 admin.site.register(UserVisit, UserVisitAdmin)
