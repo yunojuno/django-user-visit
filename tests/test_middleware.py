@@ -1,12 +1,10 @@
 from unittest import mock
 
 import pytest
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase
 from user_visit.middleware import UserVisitMiddleware, check_cache, update_cache
 from user_visit.models import RequestParser, UserVisitManager
 
@@ -73,3 +71,9 @@ class TestUserVisitMiddleware:
         assert check_cache(parser)
         assert cache.get(parser.cache_key) == hash(parser)
         cache.clear()
+
+    @mock.patch('user_visit.middleware.RECORDING_DISABLED', True)
+    def test_middleware__disabled(self):
+        """Test update_cache and check_cache functions."""
+        with pytest.raises(MiddlewareNotUsed):
+            UserVisitMiddleware(get_response=lambda r: HttpResponse())

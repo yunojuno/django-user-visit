@@ -7,7 +7,7 @@ DJANGO_VERSION = StrictVersion(django.get_version())
 
 DEBUG = True
 TEMPLATE_DEBUG = True
-USE_TZ = True 
+USE_TZ = True
 USE_L10N = True
 
 DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": "test.db"}}
@@ -67,7 +67,7 @@ LOGGING = {
         }
     },
     "loggers": {
-        "": {"handlers": ["console"], "propagate": True, "level": "ERROR"},
+        "": {"handlers": ["console"], "propagate": True, "level": "DEBUG"},
         # 'django': {
         #     'handlers': ['console'],
         #     'propagate': True,

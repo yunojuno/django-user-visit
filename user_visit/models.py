@@ -12,7 +12,16 @@ from django.utils import timezone
 
 
 class RequestParser:
-    """Parse HttpRequest object."""
+    """
+    Parse HttpRequest object.
+
+    For recording purposes we are only interested in a small subset of the
+    full HttpRequest object. This class is used to parse out the properties
+    that we need, and also to provide a convenient equivalence mechanic - so
+    that we can determine whether to record a request or not. (See the
+    __hash__ method for details.)
+
+    """
 
     def __init__(self, request: HttpRequest) -> None:
         """
@@ -167,7 +176,7 @@ class UserVisit(models.Model):
         return f"{self.user} visited the site on {self.timestamp}"
 
     def __repr__(self) -> str:
-        return f"<UserVisit user_id={self.user_id} timestamp='{self.timestamp}'>"
+        return f"<UserVisit user_id={self.user_id} date='{self.date}'>"
 
     @property
     def user_agent(self) -> user_agents.parsers.UserAgent:
