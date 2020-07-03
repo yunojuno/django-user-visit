@@ -21,11 +21,37 @@ class RequestParser:
         Raises ValueError if the request.user is not authenticated.
 
         """
+        if not request.session:
+            raise ValueError("Request object has no session.")
         if not request.user:
             raise ValueError("Request object has no user.")
         if request.user.is_anonymous:
             raise ValueError("Request user is anonymous.")
         self.request = request
+        # set in constructor as we want this fixed to object creation
+        # date, not when someone accesses the object.
+        self.date = datetime.date.today()
+
+    def __hash__(self) -> int:
+        """
+        Return object hash.
+
+        The object hash is used when comparing objects. For this class we want
+        object to be considered equal if the request properties we are recording
+        are the same, and the object was created on the same *day*.
+
+        """
+        return (
+            hash(self.user.pk)
+            ^ hash(self.date)
+            ^ hash(self.remote_addr)
+            ^ hash(self.session_key)
+            ^ hash(self.ua_string)
+        )
+
+    @property
+    def user(self) -> settings.AUTH_USER_MODEL:
+        return self.request.user
 
     @property
     def remote_addr(self) -> str:
@@ -44,6 +70,11 @@ class RequestParser:
     def ua_string(self) -> str:
         """Extract client user-agent from request."""
         return self.request.headers.get("User-Agent", "")
+
+    @property
+    def cache_key(self) -> str:
+        """Return key used for caching object."""
+        return f"user_visit:{self.user.pk}"
 
 
 class UserVisitManager(models.Manager):
