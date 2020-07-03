@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-user-visit"
-version = "0.1.0-dev2"
+version = "0.1.0-dev3"
 description = "Django app used to track user visits."
 license = "MIT"
 authors = ["YunoJuno <code@yunojuno.com>"]
