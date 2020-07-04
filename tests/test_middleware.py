@@ -6,9 +6,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse
 from django.test import Client
-
 from user_visit.middleware import SESSION_KEY, UserVisitMiddleware
-from user_visit.models import UserVisitManager, UserVisitRequestParser
+from user_visit.models import UserVisit, UserVisitManager
 
 from .utils import mock_request
 
@@ -20,56 +19,40 @@ class TestUserVisitMiddleware:
     def get_middleware(self):
         return UserVisitMiddleware(get_response=lambda r: HttpResponse())
 
-    @mock.patch.object(UserVisitManager, "record")
-    def test_middleware__anon(self, mock_record):
+    def test_middleware__anon(self):
         """Check that anonymous users are ignored."""
         client = Client()
-        client.get("/")
-        assert mock_record.call_count == 0
+        with mock.patch.object(UserVisitManager, "build") as build:
+            client.get("/")
+            assert build.call_count == 0
 
-    @mock.patch.object(UserVisitManager, "record")
-    def test_middleware__auth(self, mock_record):
+    def test_middleware__auth(self):
         """Check that authenticated users are recorded."""
         client = Client()
         client.force_login(User.objects.create_user("Fred"))
         client.get("/")
-        assert mock_record.call_count == 1
+        assert UserVisit.objects.count() == 1
 
-    @mock.patch.object(UserVisitManager, "record")
-    def test_middleware__same_day(self, mock_record):
+    def test_middleware__same_day(self):
         """Check that same user, same day, gets only one visit recorded."""
         client = Client()
         client.force_login(User.objects.create_user("Fred"))
         client.get("/")
         client.get("/")
-        assert mock_record.call_count == 1
+        assert UserVisit.objects.count() == 1
 
-    @mock.patch.object(UserVisitManager, "record")
-    def test_middleware__new_day(self, mock_record):
+    def test_middleware__new_day(self):
         """Check that same user, new day, gets new visit."""
         user = User.objects.create_user("Fred")
         client = Client()
         client.force_login(user)
         with freezegun.freeze_time("2020-07-04"):
             client.get("/")
-            assert mock_record.call_count == 1
+            assert UserVisit.objects.count() == 1
         # new day, new visit
         with freezegun.freeze_time("2020-07-05"):
             client.get("/")
-            assert mock_record.call_count == 2
-
-    @mock.patch.object(UserVisitRequestParser, "__hash__")
-    @mock.patch.object(UserVisitManager, "record")
-    def test_middleware__new_request_hash(self, mock_record, mock_hash):
-        """Record a new visit if the request hash is different."""
-        user = User.objects.create_user("Fred")
-        client = Client()
-        client.force_login(user)
-        mock_hash.return_value = 0
-        client.get("/")
-        mock_hash.return_value = 1
-        client.get("/")
-        assert mock_record.call_count == 2
+            assert UserVisit.objects.count() == 2
 
     @mock.patch("user_visit.middleware.RECORDING_DISABLED", True)
     def test_middleware__disabled(self):

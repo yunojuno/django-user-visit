@@ -4,7 +4,7 @@ from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 
 
-def mock_request(is_authenticated=True, create_user=False):
+def mock_request(is_authenticated=True):
     return mock.Mock(
         spec=HttpRequest,
         user=User() if is_authenticated else AnonymousUser(),

@@ -1,16 +1,18 @@
 import logging
 import typing
 
+import django.db
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
+from user_visit.models import UserVisit
 
-from .models import UserVisit, UserVisitRequestParser
 from .settings import RECORDING_DISABLED
 
 logger = logging.getLogger(__name__)
 
-SESSION_KEY = "user_visit.request_hash"
+# used to store unique hash of the visit
+SESSION_KEY = "user_visit.hash"
 
 
 class UserVisitMiddleware:
@@ -28,16 +30,18 @@ class UserVisitMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> typing.Optional[HttpResponse]:
-        # this will fail hard if session or auth middleware are not configured.
+        # this method will fail hard if session or auth middleware are not configured.
         if request.user.is_anonymous:
             return self.get_response(request)
 
-        parser = UserVisitRequestParser(request, timezone.now())
-        if request.session.get(SESSION_KEY, "") == hash(parser):
+        uv = UserVisit.objects.build(request, timezone.now())
+        if request.session.get(SESSION_KEY, "") == uv.hash:
             return self.get_response(request)
 
-        uv = UserVisit.objects.record(request, parser.timestamp)
-        request.session[SESSION_KEY] = hash(parser)
-        logger.debug("Recorded new user visit: %r", uv)
-
+        try:
+            uv.save()
+        except django.db.IntegrityError:
+            logger.warning("Unable to record user visit - duplicate request hash")
+        else:
+            request.session[SESSION_KEY] = uv.hash
         return self.get_response(request)
