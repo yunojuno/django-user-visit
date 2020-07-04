@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import hashlib
 import uuid
+from typing import Any
 
 import user_agents
 from django.conf import settings
@@ -11,7 +12,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 
-def parse_remote_addr(request) -> str:
+def parse_remote_addr(request: HttpRequest) -> str:
     """Extract client IP from request."""
     x_forwarded_for = request.headers.get("X-Forwarded-For", "")
     if x_forwarded_for:
@@ -90,7 +91,7 @@ class UserVisit(models.Model):
     def __repr__(self) -> str:
         return f"<UserVisit user_id={self.user_id} date='{self.date}'>"
 
-    def save(self, *args, **kwargs) -> None:
+    def save(self, *args: Any, **kwargs: Any) -> None:
         """Set hash property and save object."""
         self.hash = self.md5().hexdigest()
         super().save(*args, **kwargs)
@@ -105,7 +106,8 @@ class UserVisit(models.Model):
         """Extract the date of the visit from the timestamp."""
         return self.timestamp.date()
 
-    def md5(self) -> hashlib.md5:
+    # see https://github.com/python/typeshed/issues/2928 re. return type
+    def md5(self) -> hashlib._Hash:
         """Generate MD5 hash used to identify duplicate visits."""
         h = hashlib.md5(str(self.user.id).encode())  # noqa: S303
         h.update(self.date.isoformat().encode())

@@ -5,6 +5,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 from django.utils import timezone
+
 from user_visit.models import UserVisit, parse_remote_addr, parse_ua_string
 
 from .utils import mock_request

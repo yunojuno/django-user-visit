@@ -5,6 +5,7 @@ import django.db
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
+
 from user_visit.models import UserVisit
 
 from .settings import RECORDING_DISABLED
