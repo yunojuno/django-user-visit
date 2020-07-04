@@ -5,7 +5,8 @@ import pytest
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 from django.utils import timezone
-from user_visit.models import RequestParser, UserVisit
+
+from user_visit.models import UserVisit, UserVisitRequestParser
 
 from .utils import mock_request
 
@@ -13,7 +14,7 @@ ONE_DAY = datetime.timedelta(days=1)
 ONE_SEC = datetime.timedelta(seconds=1)
 
 
-class TestRequestParser:
+class TestUserVisitRequestParser:
     def mock_session(self):
         return mock.Mock(session_key="test")
 
@@ -21,18 +22,18 @@ class TestRequestParser:
         request = mock_request()
         request.session = None
         with pytest.raises(ValueError, match=r"Request object has no session."):
-            RequestParser(request)
+            UserVisitRequestParser(request, timezone.now())
 
     def test_init__no_user(self):
         request = mock_request()
         request.user = None
         with pytest.raises(ValueError, match=r"Request object has no user."):
-            RequestParser(request)
+            UserVisitRequestParser(request, timezone.now())
 
     def test_init__anon(self):
         request = mock_request(is_authenticated=False)
         with pytest.raises(ValueError, match=r"Request user is anonymous."):
-            RequestParser(request)
+            UserVisitRequestParser(request, timezone.now())
 
     @pytest.mark.parametrize(
         "xff,remote,output",
@@ -48,14 +49,14 @@ class TestRequestParser:
         request = mock_request()
         request.headers["X-Forwarded-For"] = xff
         request.META["REMOTE_ADDR"] = remote
-        parser = RequestParser(request)
+        parser = UserVisitRequestParser(request, timezone.now())
         assert parser.remote_addr == output
 
     @pytest.mark.parametrize("ua_string", ("", "Chrome"))
     def test_ua_string(self, ua_string):
         request = mock_request()
         request.headers["User-Agent"] = ua_string
-        parser = RequestParser(request)
+        parser = UserVisitRequestParser(request, timezone.now())
         assert parser.ua_string == ua_string
 
     @pytest.mark.django_db
@@ -65,17 +66,17 @@ class TestRequestParser:
         user = User.objects.create(username="Ginger")
         r1.user = r2.user = user
         assert r1 != r2
-        p1 = RequestParser(r1)
-        p2 = RequestParser(r2)
+        p1 = UserVisitRequestParser(r1, timezone.now())
+        p2 = UserVisitRequestParser(r2, timezone.now())
         assert hash(p1) == hash(p2)
 
     def test_hash__different_date(self):
         r1 = mock_request()
         r2 = mock_request()
         r1.user = r2.user = User(pk=1)
-        p1 = RequestParser(r1)
-        p1.date = p1.date + datetime.timedelta(days=1)
-        p2 = RequestParser(r2)
+        p1 = UserVisitRequestParser(r1, timezone.now())
+        # p1.date = p1.date + datetime.timedelta(days=1)
+        p2 = UserVisitRequestParser(r2, timezone.now() + ONE_DAY)
         assert hash(p1) != hash(p2)
 
 
@@ -94,7 +95,7 @@ class TestUserVisitManager:
         request = mock_request()
         request.user = User.objects.create_user(username="test")
         assert UserVisit.objects.count() == 0
-        uv = UserVisit.objects.record(request)
+        uv = UserVisit.objects.record(request, timezone.now())
         assert UserVisit.objects.count() == 1
         assert uv.user == request.user
         assert uv.session_key == "test"
@@ -106,7 +107,7 @@ class TestUserVisitManager:
         request = mock_request()
         request.user = User.objects.create_user(username="test")
         assert UserVisit.objects.count() == 0
-        uv1 = UserVisit.objects.record(request)
+        uv1 = UserVisit.objects.record(request, timezone.now())
         uv2 = UserVisit.objects.record(request, timestamp=uv1.timestamp + ONE_SEC)
         assert UserVisit.objects.count() == 1
         assert uv1 == uv2
@@ -129,9 +130,9 @@ class TestUserVisitManager:
         """Test same user, different IP."""
         request = mock_request()
         request.user = User.objects.create_user(username="test")
-        uv1 = UserVisit.objects.record(request)
+        uv1 = UserVisit.objects.record(request, timezone.now())
         request.headers["X-Forwarded-For"] = "192.168.0.1"
-        uv2 = UserVisit.objects.record(request)
+        uv2 = UserVisit.objects.record(request, timezone.now())
         assert UserVisit.objects.count() == 2
         assert uv1.user == uv2.user
         assert uv1.date == uv2.date
@@ -143,9 +144,9 @@ class TestUserVisitManager:
         """Test same user, different session."""
         request = mock_request()
         request.user = User.objects.create_user(username="test")
-        uv1 = UserVisit.objects.record(request)
+        uv1 = UserVisit.objects.record(request, timezone.now())
         request.session.session_key = "bar"
-        uv2 = UserVisit.objects.record(request)
+        uv2 = UserVisit.objects.record(request, timezone.now())
         assert UserVisit.objects.count() == 2
         assert uv1.user == uv2.user
         assert uv1.date == uv2.date
@@ -157,9 +158,9 @@ class TestUserVisitManager:
         """Test same user, different device."""
         request = mock_request()
         request.user = User.objects.create_user(username="test")
-        uv1 = UserVisit.objects.record(request)
+        uv1 = UserVisit.objects.record(request, timezone.now())
         request.headers["User-Agent"] = "Chrome 100"
-        uv2 = UserVisit.objects.record(request)
+        uv2 = UserVisit.objects.record(request, timezone.now())
         assert UserVisit.objects.count() == 2
         assert uv1.user == uv2.user
         assert uv1.date == uv2.date
@@ -171,7 +172,7 @@ class TestUserVisitManager:
         """Test what happens if duplicate date records exist."""
         request = mock_request()
         request.user = User.objects.create_user(username="test")
-        uv1 = UserVisit.objects.record(request)
+        uv1 = UserVisit.objects.record(request, timezone.now())
         uv2 = UserVisit.objects.record(request, timestamp=uv1.timestamp + ONE_DAY)
         assert UserVisit.objects.count() == 2
         # revert uv2 to the same day as uv1
@@ -183,6 +184,6 @@ class TestUserVisitManager:
         assert uv1.session_key == uv2.session_key
         assert uv1.ua_string == uv2.ua_string
         # we have two duplicates - now lets try a third
-        uv3 = UserVisit.objects.record(request)
+        uv3 = UserVisit.objects.record(request, timezone.now())
         assert UserVisit.objects.count() == 2
         assert uv3 == uv2

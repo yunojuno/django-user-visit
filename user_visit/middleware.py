@@ -1,34 +1,16 @@
-import datetime
 import logging
 import typing
 
-from django.core.cache import cache
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
 
-from .models import RequestParser, UserVisit
+from .models import UserVisit, UserVisitRequestParser
 from .settings import RECORDING_DISABLED
 
 logger = logging.getLogger(__name__)
 
-
-def seconds_to_midnight() -> int:
-    """Calculate seconds from now to midnight."""
-    now = timezone.now()
-    tomorrow = now + datetime.timedelta(days=1)
-    midnight = datetime.datetime.combine(tomorrow, datetime.time.min, tzinfo=now.tzinfo)
-    return (midnight - now).seconds
-
-
-def check_cache(parser: RequestParser) -> bool:
-    """Check cache for parser and return True if the hashes match."""
-    return cache.get(parser.cache_key) == hash(parser)
-
-
-def update_cache(parser: RequestParser) -> None:
-    """Cache instance of a RequestParser."""
-    cache.set(parser.cache_key, hash(parser), timeout=seconds_to_midnight())
+SESSION_KEY = "user_visit.request_hash"
 
 
 class UserVisitMiddleware:
@@ -46,17 +28,16 @@ class UserVisitMiddleware:
         self.get_response = get_response
 
     def __call__(self, request: HttpRequest) -> typing.Optional[HttpResponse]:
-        # this will fail hard if session or authentication middleware are
-        # not configured.
+        # this will fail hard if session or auth middleware are not configured.
         if request.user.is_anonymous:
             return self.get_response(request)
 
-        parser = RequestParser(request)
-        if check_cache(parser):
+        parser = UserVisitRequestParser(request, timezone.now())
+        if request.session.get(SESSION_KEY, "") == hash(parser):
             return self.get_response(request)
 
-        uv = UserVisit.objects.record(request)
-        update_cache(parser)
-        logger.debug("Recorded and cached new user visit: %r", uv)
+        uv = UserVisit.objects.record(request, parser.timestamp)
+        request.session[SESSION_KEY] = hash(parser)
+        logger.debug("Recorded new user visit: %r", uv)
 
         return self.get_response(request)

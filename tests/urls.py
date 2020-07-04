@@ -5,4 +5,4 @@ admin.autodiscover()
 
 urlpatterns = [
     path("admin/", admin.site.urls),
- ]
+]
