@@ -16,6 +16,7 @@ class UserVisitAdmin(admin.ModelAdmin):
     raw_id_fields = ("user",)
     readonly_fields = (
         "user",
+        "hash",
         "timestamp",
         "session_key",
         "remote_addr",
