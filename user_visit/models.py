@@ -11,7 +11,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 
 
-class RequestParser:
+class UserVisitRequestParser:
     """
     Parse HttpRequest object.
 
@@ -23,7 +23,7 @@ class RequestParser:
 
     """
 
-    def __init__(self, request: HttpRequest) -> None:
+    def __init__(self, request: HttpRequest, timestamp: datetime.datetime) -> None:
         """
         Initialise parser from HttpRequest object.
 
@@ -37,16 +37,14 @@ class RequestParser:
         if request.user.is_anonymous:
             raise ValueError("Request user is anonymous.")
         self.request = request
-        # set in constructor as we want this fixed to object creation
-        # date, not when someone accesses the object.
-        self.date = datetime.date.today()
+        self.timestamp = timestamp
 
     def __hash__(self) -> int:
         """
         Return object hash.
 
         The object hash is used when comparing objects. For this class we want
-        object to be considered equal if the request properties we are recording
+        objects to be considered equal if the request properties we are recording
         are the same, and the object was created on the same *day*.
 
         """
@@ -60,12 +58,18 @@ class RequestParser:
 
     @property
     def user(self) -> settings.AUTH_USER_MODEL:
+        """Underlying request user."""
         return self.request.user
+
+    @property
+    def date(self) -> datetime.date:
+        """Extract date from request timestamp."""
+        return self.timestamp.date()
 
     @property
     def remote_addr(self) -> str:
         """Extract client IP from request."""
-        x_forwarded_for = self.request.headers.get("X-Forwarded-For")
+        x_forwarded_for = self.request.headers.get("X-Forwarded-For", "")
         if x_forwarded_for:
             return x_forwarded_for.split(",")[0]
         return self.request.META.get("REMOTE_ADDR", "")
@@ -90,7 +94,7 @@ class UserVisitManager(models.Manager):
     """Custom model manager for UserVisit objects."""
 
     def record(
-        self, request: HttpRequest, timestamp: datetime.datetime = timezone.now()
+        self, request: HttpRequest, timestamp: datetime.datetime
     ) -> Optional[UserVisit]:
         """
         Record a new user visit.
@@ -104,11 +108,11 @@ class UserVisitManager(models.Manager):
         Returns the UserVisit object that is found or created.
 
         """
-        parser = RequestParser(request)
+        parser = UserVisitRequestParser(request, timestamp)
         try:
             uv = UserVisit.objects.get(
-                user=request.user,
-                timestamp__date=timestamp.date(),
+                user=parser.user,
+                timestamp__date=parser.date,
                 session_key=parser.session_key,
                 ua_string=parser.ua_string,
                 remote_addr=parser.remote_addr,
