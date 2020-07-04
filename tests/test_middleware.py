@@ -10,8 +10,6 @@ from django.test import Client
 from user_visit.middleware import SESSION_KEY, UserVisitMiddleware
 from user_visit.models import UserVisit, UserVisitManager
 
-from .utils import mock_request
-
 
 @pytest.mark.django_db
 class TestUserVisitMiddleware:
@@ -60,42 +58,3 @@ class TestUserVisitMiddleware:
         """Test update_cache and check_cache functions."""
         with pytest.raises(MiddlewareNotUsed):
             UserVisitMiddleware(get_response=lambda r: HttpResponse())
-
-
-# class TestMiddlewareFunctions:
-
-#     @pytest.mark.parametrize(
-#         "xff,remote,output",
-#         (
-#             ("", "", ""),
-#             ("127.0.0.1", "", "127.0.0.1"),
-#             ("127.0.0.1,192.168.0.1", "", "127.0.0.1"),
-#             ("127.0.0.1", "192.168.0.1", "127.0.0.1"),
-#             ("", "192.168.0.1", "192.168.0.1"),
-#         ),
-#     )
-#     def test_remote_addr(self, xff, remote, output):
-#         request = mock_request()
-#         request.headers["X-Forwarded-For"] = xff
-#         request.META["REMOTE_ADDR"] = remote
-#         assert parse_remote_addr(request) == output
-
-#     # @pytest.mark.django_db
-#     # def test_hash(self):
-#     #     r1 = mock_request()
-#     #     r2 = mock_request()
-#     #     user = User.objects.create(username="Ginger")
-#     #     r1.user = r2.user = user
-#     #     assert r1 != r2
-#     #     p1 = RequestParser(r1)
-#     #     p2 = RequestParser(r2)
-#     #     assert hash(p1) == hash(p2)
-
-#     # def test_hash__different_date(self):
-#     #     r1 = mock_request()
-#     #     r2 = mock_request()
-#     #     r1.user = r2.user = User(pk=1)
-#     #     p1 = RequestParser(r1)
-#     #     p1.date = p1.date + datetime.timedelta(days=1)
-#     #     p2 = RequestParser(r2)
-#     #     assert hash(p1) != hash(p2)
