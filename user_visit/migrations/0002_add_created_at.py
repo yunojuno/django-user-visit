@@ -19,7 +19,9 @@ class Migration(migrations.Migration):
             field=models.DateTimeField(
                 auto_now_add=True,
                 default=django.utils.timezone.now,
-                help_text="The time at which the database record was created (!=timestamp)",
+                help_text=(
+                    "The time at which the database record was created (!=timestamp)"
+                ),
             ),
             preserve_default=False,
         ),
