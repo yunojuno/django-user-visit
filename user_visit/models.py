@@ -82,14 +82,21 @@ class UserVisit(models.Model):
         help_text="MD5 hash generated from request properties",
         unique=True,
     )
+    created_at = models.DateTimeField(
+        help_text="The time at which the database record was created (!=timestamp)",
+        auto_now_add=True,
+    )
 
     objects = UserVisitManager()
+
+    class Meta:
+        get_latest_by = "timestamp"
 
     def __str__(self) -> str:
         return f"{self.user} visited the site on {self.timestamp}"
 
     def __repr__(self) -> str:
-        return f"<UserVisit user_id={self.user_id} date='{self.date}'>"
+        return f"<UserVisit id={self.id} user_id={self.user_id} date='{self.date}'>"
 
     def save(self, *args: Any, **kwargs: Any) -> None:
         """Set hash property and save object."""

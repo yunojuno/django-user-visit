@@ -1,9 +1,8 @@
 import datetime
-from unittest import mock
 
+import django.db
 import pytest
-from django.contrib.auth.models import AnonymousUser, User
-from django.http import HttpRequest
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 from user_visit.models import UserVisit, parse_remote_addr, parse_ua_string
@@ -72,6 +71,52 @@ class TestUserVisit:
         uv.save()
         assert uv.hash is not None
         assert uv.hash == uv.md5().hexdigest()
+
+    @pytest.mark.django_db
+    def test_unique(self):
+        """Check that visits on the same day but at different times, are rejected."""
+        user = User.objects.create(username="Bob")
+        timestamp1 = timezone.now()
+        uv1 = UserVisit.objects.create(
+            user=user,
+            session_key="test",
+            ua_string="Chrome",
+            remote_addr="127.0.0.1",
+            timestamp=timestamp1,
+        )
+        uv2 = UserVisit(
+            user=uv1.user,
+            session_key=uv1.session_key,
+            ua_string=uv1.ua_string,
+            remote_addr=uv1.remote_addr,
+            timestamp=uv1.timestamp - ONE_SEC,
+        )
+        assert uv1.date == uv2.date
+        with pytest.raises(django.db.IntegrityError):
+            uv2.save()
+
+    @pytest.mark.django_db
+    def test_get_latest_by(self):
+        """Check that latest() is ordered by timestamp, not id."""
+        user = User.objects.create(username="Bob")
+        timestamp1 = timezone.now()
+        uv1 = UserVisit.objects.create(
+            user=user,
+            session_key="test",
+            ua_string="Chrome",
+            remote_addr="127.0.0.1",
+            timestamp=timestamp1,
+        )
+        timestamp2 = timestamp1 - datetime.timedelta(seconds=1)
+        uv2 = UserVisit.objects.create(
+            user=user,
+            session_key="test",
+            ua_string="Chrome",
+            remote_addr="192.168.0.1",
+            timestamp=timestamp2,
+        )
+        assert uv1.timestamp > uv2.timestamp
+        assert user.user_visits.latest() == uv1
 
     def test_md5(self):
         """Check that MD5 changes when properties change."""
