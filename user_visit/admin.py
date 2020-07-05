@@ -22,7 +22,7 @@ class UserVisitAdmin(admin.ModelAdmin):
         "remote_addr",
         "user_agent",
         "ua_string",
-        "created_at"
+        "created_at",
     )
     ordering = ("-timestamp",)
 
