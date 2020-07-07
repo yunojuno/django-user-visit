@@ -57,9 +57,7 @@ class UserVisitMiddleware:
         try:
             uv.save()
         except django.db.IntegrityError as ex:
-            logger.warning(
-                "Error saving user visit (hash='%s'): %s", uv.hash, ex
-            )
+            logger.warning("Error saving user visit (hash='%s'): %s", uv.hash, ex)
             logger.debug("Session hash='%s'", request.session.get(SESSION_KEY, ""))
             logger.debug("UserVisit.session_key='%s'", uv.session_key)
             logger.debug("UserVisit.remote_addr='%s'", uv.remote_addr)
