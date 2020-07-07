@@ -2,6 +2,7 @@ import logging
 import typing
 
 import django.db
+from django.contrib.sessions.backends.base import SessionBase
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
@@ -14,6 +15,20 @@ logger = logging.getLogger(__name__)
 
 # used to store unique hash of the visit
 SESSION_KEY = "user_visit.hash"
+
+
+def visit_is_cached(user_visit: UserVisit, session: SessionBase) -> bool:
+    """Return True if the visit is already in the request session."""
+    if not user_visit.hash:
+        return False
+    return session.get(SESSION_KEY) == user_visit.hash
+
+
+def cache_visit(user_visit: UserVisit, session: SessionBase) -> None:
+    """Cache UserVisit in session."""
+    if not user_visit.hash:
+        return
+    session[SESSION_KEY] = user_visit.hash
 
 
 class UserVisitMiddleware:
@@ -36,13 +51,20 @@ class UserVisitMiddleware:
             return self.get_response(request)
 
         uv = UserVisit.objects.build(request, timezone.now())
-        if request.session.get(SESSION_KEY, "") == uv.hash:
+        if visit_is_cached(uv, request.session):
             return self.get_response(request)
 
         try:
             uv.save()
-        except django.db.IntegrityError:
-            logger.warning("Unable to record user visit - duplicate request hash")
+        except django.db.IntegrityError as ex:
+            logger.warning(
+                "Error saving user visit (hash='%s'): %s", uv.hash, ex
+            )
+            logger.debug("Session hash='%s'", request.session.get(SESSION_KEY, ""))
+            logger.debug("UserVisit.session_key='%s'", uv.session_key)
+            logger.debug("UserVisit.remote_addr='%s'", uv.remote_addr)
+            logger.debug("UserVisit.ua_string='%s'", uv.ua_string)
+            logger.debug("UserVisit.user_id='%s'", uv.user_id)
         else:
-            request.session[SESSION_KEY] = uv.hash
+            cache_visit(uv, request.session)
         return self.get_response(request)
