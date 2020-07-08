@@ -8,6 +8,7 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse
 from django.test import Client
+
 from user_visit.middleware import (
     SESSION_KEY,
     UserVisitMiddleware,
