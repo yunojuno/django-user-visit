@@ -1,5 +1,6 @@
 from unittest import mock
 
+import django.db
 import freezegun
 import pytest
 from django.contrib.auth.models import User
@@ -7,7 +8,6 @@ from django.contrib.sessions.backends.base import SessionBase
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpResponse
 from django.test import Client
-
 from user_visit.middleware import (
     SESSION_KEY,
     UserVisitMiddleware,
@@ -93,6 +93,16 @@ class TestUserVisitMiddleware:
         client.get("/")
         with mock.patch("user_visit.middleware.visit_is_cached", return_value=False):
             client.get("/")
+
+    def test_middleware__db_integrity_error(self):
+        """Check that middleware stores hash when db raises duplicate hash error."""
+        user = User.objects.create_user("Fred")
+        client = Client()
+        client.force_login(user)
+        assert not client.session.get(SESSION_KEY)
+        with mock.patch.object(UserVisit, "save", side_effect=django.db.IntegrityError):
+            client.get("/")
+            assert client.session[SESSION_KEY]
 
     @mock.patch("user_visit.middleware.RECORDING_DISABLED", True)
     def test_middleware__disabled(self):
