@@ -282,7 +282,7 @@ description = "A Python utility / library to sort Python imports."
 name = "isort"
 optional = false
 python-versions = ">=3.6,<4.0"
-version = "5.0.4"
+version = "5.0.5"
 
 [package.extras]
 pipfile_deprecated_finder = ["pipreqs", "requirementslib", "tomlkit (>=0.5.3)"]
@@ -822,8 +822,8 @@ importlib-metadata = [
     {file = "importlib_metadata-1.7.0.tar.gz", hash = "sha256:90bb658cdbbf6d1735b6341ce708fc7024a3e14e99ffdc5783edea9f9b077f83"},
 ]
 isort = [
-    {file = "isort-5.0.4-py3-none-any.whl", hash = "sha256:78661ad751751cb3c181d37302e175a0c644b3714877c073df058c596281d7fd"},
-    {file = "isort-5.0.4.tar.gz", hash = "sha256:6ae9cf5414e416954e3421f861cbbfc099b3ace63cb270cc76c6670efd960a0a"},
+    {file = "isort-5.0.5-py3-none-any.whl", hash = "sha256:e7b11f4317c0668bd2a25f924c14338ca39b92723f24bdaef37452af0dd5a87b"},
+    {file = "isort-5.0.5.tar.gz", hash = "sha256:cb76a2fac5ac08eae0020f7e56bab895cf3d8982034aa16f3cd67984edf26223"},
 ]
 lazy-object-proxy = [
     {file = "lazy-object-proxy-1.4.3.tar.gz", hash = "sha256:f3900e8a5de27447acbf900b4750b0ddfd7ec1ea7fbaf11dfa911141bc522af0"},
