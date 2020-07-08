@@ -63,6 +63,7 @@ class UserVisitMiddleware:
             logger.debug("UserVisit.remote_addr='%s'", uv.remote_addr)
             logger.debug("UserVisit.ua_string='%s'", uv.ua_string)
             logger.debug("UserVisit.user_id='%s'", uv.user_id)
-        else:
-            cache_visit(uv, request.session)
+        # if the database has raised an IntegrityError it means the hash is already
+        # stored, but is not in the session for some reason.
+        cache_visit(uv, request.session)
         return self.get_response(request)
