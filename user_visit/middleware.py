@@ -21,12 +21,14 @@ def save_user_visit(user_visit: UserVisit) -> None:
         logger.warning("Error saving user visit (hash='%s')", user_visit.hash)
 
 
-def update_user_visit(user_visit: UserVisit) -> None:
+def update_user_visit(uv: UserVisit) -> None:
     """Update the user visit and handle db.IntegrityError."""
     try:
+        user_visit = UserVisit.objects.get(hash=uv.hash)
+    except django.db.IntegrityError as error:
+        logger.warning("Error updating user visit: ", str(error))
+    else:
         user_visit.update()
-    except django.db.IntegrityError:
-        logger.warning("Error saving user visit (hash='%s')", user_visit.hash)
 
 
 class UserVisitMiddleware:
