@@ -86,6 +86,10 @@ class UserVisit(models.Model):
         help_text="The time at which the database record was created (!=timestamp)",
         auto_now_add=True,
     )
+    updated_at = models.DateTimeField(
+        help_text="The time to update the record in the database (!=timestamp)",
+        auto_now=True,
+    )
 
     objects = UserVisitManager()
 
@@ -101,6 +105,10 @@ class UserVisit(models.Model):
     def save(self, *args: Any, **kwargs: Any) -> None:
         """Set hash property and save object."""
         self.hash = self.md5().hexdigest()
+        super().save(*args, **kwargs)
+
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        """Update object."""
         super().save(*args, **kwargs)
 
     @property

@@ -23,6 +23,7 @@ class UserVisitAdmin(admin.ModelAdmin):
         "user_agent",
         "ua_string",
         "created_at",
+        "updated_at",
     )
     ordering = ("-timestamp",)
 
