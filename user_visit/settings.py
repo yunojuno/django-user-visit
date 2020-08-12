@@ -11,3 +11,7 @@ def _env_or_setting(key: str, default: Any, cast_func: Callable = lambda x: x) -
 RECORDING_DISABLED = _env_or_setting(
     "USER_VISIT_RECORDING_DISABLED", False, lambda x: bool(x)
 )
+
+UPDATING_DISABLED = _env_or_setting(
+    "USER_VISIT_UPDATING_DISABLED", False, lambda x: bool(x)
+)

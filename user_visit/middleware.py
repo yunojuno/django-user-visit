@@ -8,7 +8,10 @@ from django.utils import timezone
 
 from user_visit.models import UserVisit
 
-from .settings import RECORDING_DISABLED
+from .settings import (
+    RECORDING_DISABLED,
+    UPDATING_DISABLED
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +49,7 @@ class UserVisitMiddleware:
         uv = UserVisit.objects.build(request, timezone.now())
         if not UserVisit.objects.filter(hash=uv.hash).exists():
             save_user_visit(uv)
-        else:
+        elif not UPDATING_DISABLED:
             update_user_visit(uv)
 
         return self.get_response(request)
