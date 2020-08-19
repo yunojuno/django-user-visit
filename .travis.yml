@@ -1,6 +1,22 @@
 language: python
-python:
-    - "3.7"
-    - "3.8"
-install: pip install tox-travis
+
+os: linux
+
+dist: xenial
+
+install: pip install tox tox-travis
+
 script: tox
+
+jobs:
+    include:
+        - { python: "3.7", env: TOXENV=py37-django22, services: postgresql }
+        - { python: "3.7", env: TOXENV=py37-django30, services: postgresql }
+        - { python: "3.7", env: TOXENV=py37-django31 }
+        - { python: "3.8", env: TOXENV=py38-django22, services: postgresql }
+        - { python: "3.8", env: TOXENV=py38-django30, services: postgresql }
+        - { python: "3.8", env: TOXENV=py38-django31 }
+        - { python: "3.8", env: TOXENV=py38-djangomaster }
+        - { python: "3.8", env: TOXENV=fmt }
+        - { python: "3.8", env: TOXENV=lint }
+        - { python: "3.8", env: TOXENV=mypy }

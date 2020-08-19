@@ -1,7 +1,7 @@
 repos:
     # python import sorting - will amend files
     - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v5.0.4
+      rev: v5.4.2
       hooks:
           - id: isort
 
@@ -10,14 +10,6 @@ repos:
       rev: 19.10b0
       hooks:
           - id: black
-
-    # PEP8 linting, with added Django goodness, and custom YJ plugin
-    - repo: https://github.com/pre-commit/mirrors-pylint
-      rev: v2.5.3
-      hooks:
-          - id: pylint
-            args:
-                - --rcfile=.pylintrc
 
     # Flake8 includes pyflakes, pycodestyle, mccabe, pydocstyle, bandit
     - repo: https://gitlab.com/pycqa/flake8
@@ -40,11 +32,3 @@ repos:
                 - --ignore-missing-imports
                 - --follow-imports=silent
             exclude: ^tests
-
-    # JS, JSON and SCSS formatting
-    - repo: https://github.com/prettier/prettier
-      rev: 2.0.5
-      hooks:
-          - id: prettier
-            args:
-                - --config=.prettierrc
