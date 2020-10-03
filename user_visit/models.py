@@ -86,6 +86,10 @@ class UserVisit(models.Model):
         help_text="The time at which the database record was created (!=timestamp)",
         auto_now_add=True,
     )
+    updated_at = models.DateTimeField(
+        help_text="The time to update the record in the database (!=timestamp)",
+        auto_now=True,
+    )
 
     objects = UserVisitManager()
 
@@ -103,6 +107,10 @@ class UserVisit(models.Model):
         self.hash = self.md5().hexdigest()
         super().save(*args, **kwargs)
 
+    def update(self, *args: Any, **kwargs: Any) -> None:
+        """Update object."""
+        super().save(*args, **kwargs)
+
     @property
     def user_agent(self) -> user_agents.parsers.UserAgent:
         """Return UserAgent object from the raw user_agent string."""
@@ -115,8 +123,8 @@ class UserVisit(models.Model):
 
     # see https://github.com/python/typeshed/issues/2928 re. return type
     def md5(self) -> hashlib._Hash:
-        """Generate MD5 hash used to identify duplicate visits."""
-        h = hashlib.md5(str(self.user.id).encode())  # noqa: S303
+        """Generate MD5 hash used to primary key duplicate visits."""
+        h = hashlib.md5(str(self.user.pk).encode())  # noqa: S303
         h.update(self.date.isoformat().encode())
         h.update(self.session_key.encode())
         h.update(self.remote_addr.encode())
