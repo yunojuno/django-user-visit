@@ -2,6 +2,15 @@
 
 Django app for recording daily user visits
 
+#### Compatibility
+
+This library uses the `__future__.annotations` import for postponed evaluation of annotations.
+As a result it supports Python 3.7 and above only.
+
+It supports Django 2.2 and above.
+
+---
+
 This app consists of middleware to record user visits, and a single `UserVisit` model to capture
 that data.
 
