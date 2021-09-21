@@ -1,0 +1,75 @@
+name: Python / Django
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toxenv: [fmt,lint,mypy]
+    env:
+      TOXENV: ${{ matrix.toxenv }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install and run tox
+        run: |
+          pip install tox
+          tox
+
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: [3.9]
+        django: [22,32,main]
+
+    env:
+      TOXENV: py${{ matrix.python }}-django${{ matrix.django }}
+
+    # services:
+    #   postgres:
+    #     image: postgres:12
+    #     env:
+    #       POSTGRES_USER: postgres
+    #       POSTGRES_PASSWORD: postgres
+    #       POSTGRES_DB: onfido
+    #       # Set health checks to wait until postgres has started
+    #     options: >-
+    #       --health-cmd pg_isready
+    #       --health-interval 10s
+    #       --health-timeout 5s
+    #       --health-retries 5
+    #     ports:
+    #       # Maps tcp port 5432 on service container to the host
+    #       - 5432:5432
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install and run tox
+        run: |
+          pip install tox
+          tox

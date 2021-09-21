@@ -1,34 +1,45 @@
 repos:
-    # python import sorting - will amend files
-    - repo: https://github.com/pre-commit/mirrors-isort
-      rev: v5.4.2
-      hooks:
-          - id: isort
+  # python import sorting - will amend files
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v5.9.3
+    hooks:
+      - id: isort
 
-    # python code formatting - will amend files
-    - repo: https://github.com/ambv/black
-      rev: 19.10b0
-      hooks:
-          - id: black
+  # python code formatting - will amend files
+  - repo: https://github.com/ambv/black
+    rev: 21.8b0
+    hooks:
+      - id: black
 
-    # Flake8 includes pyflakes, pycodestyle, mccabe, pydocstyle, bandit
-    - repo: https://gitlab.com/pycqa/flake8
-      rev: 3.8.3
-      hooks:
-          - id: flake8
-            additional_dependencies: ["flake8-docstrings", "flake8-bandit"]
-            exclude: tests
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.25.0
+    hooks:
+      - id: pyupgrade
 
-    # python static type checking
-    - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v0.782
-      hooks:
-          - id: mypy
-            args:
-                - --disallow-untyped-defs
-                - --disallow-incomplete-defs
-                - --check-untyped-defs
-                - --no-implicit-optional
-                - --ignore-missing-imports
-                - --follow-imports=silent
-            exclude: ^tests
+  # Flake8 includes pyflakes, pycodestyle, mccabe, pydocstyle, bandit
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-bandit
+          - flake8-blind-except
+          - flake8-docstrings
+          - flake8-logging-format
+          - flake8-print
+
+  # python static type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.910
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-geoip2
+        args:
+          - --disallow-untyped-defs
+          - --disallow-incomplete-defs
+          - --check-untyped-defs
+          - --no-implicit-optional
+          - --ignore-missing-imports
+          - --follow-imports=silent
+        exclude: ^tests

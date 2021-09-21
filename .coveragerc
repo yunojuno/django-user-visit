@@ -5,5 +5,4 @@ omit =
     user_visit/migrations/*
     user_visit/apps.py
     .tox/*
-
-
+    .venv/*
