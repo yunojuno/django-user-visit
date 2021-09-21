@@ -53,7 +53,7 @@ TEMPLATES = [
 
 STATIC_URL = "/static/"
 
-SECRET_KEY = "secret"
+SECRET_KEY = "secret"  # noqa: S105
 
 LOGGING = {
     "version": 1,
@@ -108,4 +108,7 @@ COVERAGE_MODULE_EXCLUDES = [
 REQUEST_PROFILER_RULESET_CACHE_TIMEOUT = 0
 
 # AUTH_USER_MODEL = 'tests.CustomUser'
-assert DEBUG, "This settings file can only be used with DEBUG=True"
+if not DEBUG:
+    raise django.core.exceptions.ImproperlyConfigured(
+        "This settings file can only be used with DEBUG=True"
+    )

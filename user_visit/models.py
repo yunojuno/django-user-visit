@@ -74,7 +74,9 @@ class UserVisit(models.Model):
         blank=True,
     )
     ua_string = models.TextField(
-        "User agent (raw)", help_text="Client User-Agent HTTP header", blank=True,
+        "User agent (raw)",
+        help_text="Client User-Agent HTTP header",
+        blank=True,
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     hash = models.CharField(

@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="uservisit", options={"get_latest_by": "timestamp"},
+            name="uservisit",
+            options={"get_latest_by": "timestamp"},
         ),
         migrations.AddField(
             model_name="uservisit",

@@ -27,10 +27,11 @@ per-file-ignores =
   ; D400 - First line should end with a period
   ; D401 - First line should be in imperative mood
   ; S101 - use of assert
+  ; S105 - possible hard-coded password
   ; S106 - hard-coded password
   ; E501 - line-length
   ; E731 - assigning a lambda to a variable
-  *tests/*:D205,D400,D401,S101,S106,E501,E731
+  *tests/*:D205,D400,D401,S101,S105,S106,E501,E731
   */migrations/*:E501
   ; F403 - unable to detect undefined names
   ; F405 - may be undefined, or defined from star imports
