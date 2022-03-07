@@ -1,9 +1,6 @@
-from distutils.version import StrictVersion
 from os import path
 
 import django
-
-DJANGO_VERSION = StrictVersion(django.get_version())
 
 DEBUG = True
 TEMPLATE_DEBUG = True
