@@ -53,11 +53,11 @@ class TestUserVisitManager:
         assert uv.uuid is not None
         assert uv.pk is None
 
-    def test_build__CUSTOM_REQUEST_EXTRACTOR(self):
+    def test_build__REQUEST_CONTEXT_EXTRACTOR(self):
         request = mock_request()
         timestamp = timezone.now()
         extractor = lambda r: {"foo": "bar"}
-        with mock.patch("user_visit.models.CUSTOM_REQUEST_EXTRACTOR", extractor):
+        with mock.patch("user_visit.models.REQUEST_CONTEXT_EXTRACTOR", extractor):
             uv = UserVisit.objects.build(request, timestamp)
         assert uv.context == {"foo": "bar"}
 

@@ -12,7 +12,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _lazy
 
-from user_visit.settings import CUSTOM_REQUEST_EXTRACTOR
+from user_visit.settings import REQUEST_CONTEXT_ENCODER, REQUEST_CONTEXT_EXTRACTOR
 
 
 def parse_remote_addr(request: HttpRequest) -> str:
@@ -39,7 +39,7 @@ class UserVisitManager(models.Manager):
             session_key=request.session.session_key,
             remote_addr=parse_remote_addr(request),
             ua_string=parse_ua_string(request),
-            context=CUSTOM_REQUEST_EXTRACTOR(request),
+            context=REQUEST_CONTEXT_EXTRACTOR(request),
         )
         uv.hash = uv.md5().hexdigest()
         return uv
@@ -98,6 +98,7 @@ class UserVisit(models.Model):
         default=dict,
         blank=True,
         null=True,
+        encoder=REQUEST_CONTEXT_ENCODER,
         help_text=_lazy("Used for storing ad hoc / ephemeral data - e.g. GeoIP."),
     )
 
