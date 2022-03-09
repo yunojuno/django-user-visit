@@ -10,6 +10,9 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _lazy
+
+from user_visit.settings import REQUEST_CONTEXT_ENCODER, REQUEST_CONTEXT_EXTRACTOR
 
 
 def parse_remote_addr(request: HttpRequest) -> str:
@@ -36,6 +39,7 @@ class UserVisitManager(models.Manager):
             session_key=request.session.session_key,
             remote_addr=parse_remote_addr(request),
             ua_string=parse_ua_string(request),
+            context=REQUEST_CONTEXT_EXTRACTOR(request),
         )
         uv.hash = uv.md5().hexdigest()
         return uv
@@ -61,12 +65,12 @@ class UserVisit(models.Model):
         settings.AUTH_USER_MODEL, related_name="user_visits", on_delete=models.CASCADE
     )
     timestamp = models.DateTimeField(
-        help_text="The time at which the first visit of the day was recorded",
+        help_text=_lazy("The time at which the first visit of the day was recorded"),
         default=timezone.now,
     )
     session_key = models.CharField(help_text="Django session identifier", max_length=40)
     remote_addr = models.CharField(
-        help_text=(
+        help_text=_lazy(
             "Client IP address (from X-Forwarded-For HTTP header, "
             "or REMOTE_ADDR request property)"
         ),
@@ -75,18 +79,27 @@ class UserVisit(models.Model):
     )
     ua_string = models.TextField(
         "User agent (raw)",
-        help_text="Client User-Agent HTTP header",
+        help_text=_lazy("Client User-Agent HTTP header"),
         blank=True,
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     hash = models.CharField(
         max_length=32,
-        help_text="MD5 hash generated from request properties",
+        help_text=_lazy("MD5 hash generated from request properties"),
         unique=True,
     )
     created_at = models.DateTimeField(
-        help_text="The time at which the database record was created (!=timestamp)",
+        help_text=_lazy(
+            "The time at which the database record was created (!=timestamp)"
+        ),
         auto_now_add=True,
+    )
+    context = models.JSONField(
+        default=dict,
+        blank=True,
+        null=True,
+        encoder=REQUEST_CONTEXT_ENCODER,
+        help_text=_lazy("Used for storing ad hoc / ephemeral data - e.g. GeoIP."),
     )
 
     objects = UserVisitManager()

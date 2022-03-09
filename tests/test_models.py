@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 import django.db
 import pytest
@@ -52,6 +53,14 @@ class TestUserVisitManager:
         assert uv.uuid is not None
         assert uv.pk is None
 
+    def test_build__REQUEST_CONTEXT_EXTRACTOR(self):
+        request = mock_request()
+        timestamp = timezone.now()
+        extractor = lambda r: {"foo": "bar"}
+        with mock.patch("user_visit.models.REQUEST_CONTEXT_EXTRACTOR", extractor):
+            uv = UserVisit.objects.build(request, timestamp)
+        assert uv.context == {"foo": "bar"}
+
 
 class TestUserVisit:
 
@@ -68,6 +77,7 @@ class TestUserVisit:
         timestamp = timezone.now()
         uv = UserVisit.objects.build(request, timestamp)
         uv.hash = None
+        uv.context = {"foo": "bar"}
         uv.save()
         assert uv.hash is not None
         assert uv.hash == uv.md5().hexdigest()
