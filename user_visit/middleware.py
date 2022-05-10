@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from user_visit.models import UserVisit
 
-from .settings import RECORDING_DISABLED
+from .settings import RECORDING_BYPASS, RECORDING_DISABLED
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,9 @@ class UserVisitMiddleware:
 
     def __call__(self, request: HttpRequest) -> typing.Optional[HttpResponse]:
         if request.user.is_anonymous:
+            return self.get_response(request)
+
+        if RECORDING_BYPASS(request):
             return self.get_response(request)
 
         uv = UserVisit.objects.build(request, timezone.now())

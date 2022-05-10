@@ -16,14 +16,23 @@ RECORDING_DISABLED = _env_or_setting(
 
 
 # function that takes a request object and returns a dictionary of info
-# that will be stored against the request. By default returns empty dict.
-# canonical example of a use case for this is extracting GeoIP info.
+# that will be stored against the request. By default returns empty
+# dict. canonical example of a use case for this is extracting GeoIP
+# info.
 REQUEST_CONTEXT_EXTRACTOR: Callable[[HttpRequest], dict] = getattr(
     settings, "USER_VISIT_REQUEST_CONTEXT_EXTRACTOR", lambda r: {}
 )
 
 
-# Can be used to override the JSON encoder used for the context JSON field.s
+# Can be used to override the JSON encoder used for the context JSON
+# fields
 REQUEST_CONTEXT_ENCODER = getattr(
     settings, "USER_VISIT_CONTEXT_ENCODER", DjangoJSONEncoder
 )
+
+
+# function used to bypass recording for specific requests - this can be
+# used to e.g. prevent staff users from being recorded. The function
+# must be a Callable that takes a HttpRequest arg and returns a bool -
+# if True then the recording is bypassed.
+RECORDING_BYPASS = getattr(settings, "USER_VISIT_RECORDING_BYPASS", lambda r: False)
