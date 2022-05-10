@@ -84,3 +84,17 @@ class TestUserVisitMiddleware:
         """Test update_cache and check_cache functions."""
         with pytest.raises(MiddlewareNotUsed):
             UserVisitMiddleware(get_response=lambda r: HttpResponse())
+
+    @mock.patch(
+        "user_visit.middleware.RECORDING_BYPASS",
+        lambda r: r.user.username == "Fred",
+    )
+    @pytest.mark.parametrize("username", ["Fred", "Ginger"])
+    def test_middleware__bypassed(self, username: str) -> None:
+        """Test the RECORDING_BYPASS function."""
+        user = User.objects.create_user(username)
+        client = Client()
+        client.force_login(user)
+        client.get("/")
+        count = 0 if user.username == "Fred" else 1
+        assert UserVisit.objects.count() == count
