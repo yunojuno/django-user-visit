@@ -1,5 +1,6 @@
 from os import getenv
 from typing import Any, Callable
+
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpRequest

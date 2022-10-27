@@ -68,7 +68,6 @@ def test_save_user_visit__duplicate__log_levels(mock_logger):
     assert mock_logger.debug.call_count == 1
 
 
-
 @pytest.mark.django_db
 class TestUserVisitMiddleware:
     """RequestTokenMiddleware tests."""

@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from user_visit.models import UserVisit
 
-from .settings import RECORDING_BYPASS, RECORDING_DISABLED, DUPLICATE_LOG_LEVEL
+from .settings import DUPLICATE_LOG_LEVEL, RECORDING_BYPASS, RECORDING_DISABLED
 
 logger = logging.getLogger(__name__)
 
