@@ -1,6 +1,5 @@
 from os import getenv
 from typing import Any, Callable
-
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpRequest
@@ -36,3 +35,11 @@ REQUEST_CONTEXT_ENCODER = getattr(
 # must be a Callable that takes a HttpRequest arg and returns a bool -
 # if True then the recording is bypassed.
 RECORDING_BYPASS = getattr(settings, "USER_VISIT_RECORDING_BYPASS", lambda r: False)
+
+
+# The log level to use when logging duplicate hashes. This is WARNING by
+# default, but if it's noisy you can turn this down by setting this
+# value. Must be one of "debug", "info", "warning", "error"
+DUPLICATE_LOG_LEVEL: str = getattr(
+    settings, "USER_VISIT_DUPLICATE_LOG_LEVEL", "warning"
+).lower()

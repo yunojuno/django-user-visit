@@ -8,17 +8,20 @@ from django.utils import timezone
 
 from user_visit.models import UserVisit
 
-from .settings import RECORDING_BYPASS, RECORDING_DISABLED
+from .settings import RECORDING_BYPASS, RECORDING_DISABLED, DUPLICATE_LOG_LEVEL
 
 logger = logging.getLogger(__name__)
 
 
+@django.db.transaction.atomic
 def save_user_visit(user_visit: UserVisit) -> None:
     """Save the user visit and handle db.IntegrityError."""
     try:
         user_visit.save()
     except django.db.IntegrityError:
-        logger.warning("Error saving user visit (hash='%s')", user_visit.hash)
+        getattr(logger, DUPLICATE_LOG_LEVEL)(
+            "Error saving user visit (hash='%s')", user_visit.hash
+        )
 
 
 class UserVisitMiddleware:

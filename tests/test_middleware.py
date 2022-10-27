@@ -30,6 +30,46 @@ def test_save_user_visit():
 
 
 @pytest.mark.django_db
+@mock.patch("user_visit.middleware.logger")
+def test_save_user_visit__duplicate(mock_logger):
+    """Test standalone save method handles db.IntegrityError."""
+    user = User.objects.create(username="Yoda")
+    timestamp = timezone.now()
+    uv = UserVisit.objects.create(
+        user=user,
+        session_key="test",
+        ua_string="Chrome",
+        remote_addr="127.0.0.1",
+        timestamp=timestamp,
+    )
+    uv.id = None
+    # this should raise an IntegrityError as the object hash hasn't changed.
+    save_user_visit(uv)
+    assert mock_logger.warning.call_count == 1
+
+
+@pytest.mark.django_db
+@mock.patch("user_visit.middleware.logger")
+@mock.patch("user_visit.middleware.DUPLICATE_LOG_LEVEL", "debug")
+def test_save_user_visit__duplicate__log_levels(mock_logger):
+    """Test standalone save method handles db.IntegrityError."""
+    user = User.objects.create(username="Yoda")
+    timestamp = timezone.now()
+    uv = UserVisit.objects.create(
+        user=user,
+        session_key="test",
+        ua_string="Chrome",
+        remote_addr="127.0.0.1",
+        timestamp=timestamp,
+    )
+    uv.id = None
+    save_user_visit(uv)
+    assert mock_logger.warning.call_count == 0
+    assert mock_logger.debug.call_count == 1
+
+
+
+@pytest.mark.django_db
 class TestUserVisitMiddleware:
     """RequestTokenMiddleware tests."""
 
