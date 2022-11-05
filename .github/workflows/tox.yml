@@ -14,18 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toxenv: [fmt,lint,mypy]
+        toxenv: [fmt, lint, mypy, checks]
     env:
       TOXENV: ${{ matrix.toxenv }}
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v1
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.11"
 
       - name: Install and run tox
         run: |
@@ -37,18 +37,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.10", "3.11"]
-        django: [32,41,main]
+        python: ["3.8", "3.11"]
+        django: ["32", "41", "main"]
 
     env:
       TOXENV: py${{ matrix.python }}-django${{ matrix.django }}
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
 

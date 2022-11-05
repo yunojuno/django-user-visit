@@ -4,7 +4,7 @@ Django app for recording daily user visits
 
 #### Compatibility
 
-This pibrary supports Python 3.8+ and Django 3.2+
+This package supports Python 3.8+ and Django 3.2+
 
 ---
 
