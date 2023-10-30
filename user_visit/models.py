@@ -42,6 +42,9 @@ class UserVisitManager(models.Manager):
             context=REQUEST_CONTEXT_EXTRACTOR(request),
         )
         uv.hash = uv.md5().hexdigest()
+        uv.browser = uv.user_agent.get_browser()
+        uv.device = uv.user_agent.get_device()
+        uv.os = uv.user_agent.get_os()
         return uv
 
 
@@ -81,6 +84,21 @@ class UserVisit(models.Model):
         "User agent (raw)",
         help_text=_lazy("Client User-Agent HTTP header"),
         blank=True,
+    )
+    browser = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+    )
+    device = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+    )
+    os = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     hash = models.CharField(
