@@ -14,7 +14,7 @@ from user_visit.models import UserVisit, UserVisitManager
 
 
 @pytest.mark.django_db
-def test_save_user_visit():
+def test_save_user_visit() -> None:
     """Test standalone save method handles db.IntegrityError."""
     user = User.objects.create(username="Yoda")
     timestamp = timezone.now()
@@ -31,7 +31,7 @@ def test_save_user_visit():
 
 @pytest.mark.django_db
 @mock.patch("user_visit.middleware.logger")
-def test_save_user_visit__duplicate(mock_logger):
+def test_save_user_visit__duplicate(mock_logger: mock.Mock) -> None:
     """Test standalone save method handles db.IntegrityError."""
     user = User.objects.create(username="Yoda")
     timestamp = timezone.now()
@@ -51,7 +51,7 @@ def test_save_user_visit__duplicate(mock_logger):
 @pytest.mark.django_db
 @mock.patch("user_visit.middleware.logger")
 @mock.patch("user_visit.middleware.DUPLICATE_LOG_LEVEL", "debug")
-def test_save_user_visit__duplicate__log_levels(mock_logger):
+def test_save_user_visit__duplicate__log_levels(mock_logger: mock.Mock) -> None:
     """Test standalone save method handles db.IntegrityError."""
     user = User.objects.create(username="Yoda")
     timestamp = timezone.now()
@@ -72,24 +72,24 @@ def test_save_user_visit__duplicate__log_levels(mock_logger):
 class TestUserVisitMiddleware:
     """RequestTokenMiddleware tests."""
 
-    def get_middleware(self):
+    def get_middleware(self) -> UserVisitMiddleware:
         return UserVisitMiddleware(get_response=lambda r: HttpResponse())
 
-    def test_middleware__anon(self):
+    def test_middleware__anon(self) -> None:
         """Check that anonymous users are ignored."""
         client = Client()
         with mock.patch.object(UserVisitManager, "build") as build:
             client.get("/")
             assert build.call_count == 0
 
-    def test_middleware__auth(self):
+    def test_middleware__auth(self) -> None:
         """Check that authenticated users are recorded."""
         client = Client()
         client.force_login(User.objects.create_user("Fred"))
         client.get("/")
         assert UserVisit.objects.count() == 1
 
-    def test_middleware__same_day(self):
+    def test_middleware__same_day(self) -> None:
         """Check that same user, same day, gets only one visit recorded."""
         client = Client()
         client.force_login(User.objects.create_user("Fred"))
@@ -97,7 +97,7 @@ class TestUserVisitMiddleware:
         client.get("/")
         assert UserVisit.objects.count() == 1
 
-    def test_middleware__new_day(self):
+    def test_middleware__new_day(self) -> None:
         """Check that same user, new day, gets new visit."""
         user = User.objects.create_user("Fred")
         client = Client()
@@ -110,7 +110,7 @@ class TestUserVisitMiddleware:
             client.get("/")
             assert UserVisit.objects.count() == 2
 
-    def test_middleware__db_integrity_error(self):
+    def test_middleware__db_integrity_error(self) -> None:
         """Check that a failing save doesn't kill middleware."""
         user = User.objects.create_user("Fred")
         client = Client()
@@ -119,7 +119,7 @@ class TestUserVisitMiddleware:
             client.get("/")
 
     @mock.patch("user_visit.middleware.RECORDING_DISABLED", True)
-    def test_middleware__disabled(self):
+    def test_middleware__disabled(self) -> None:
         """Test update_cache and check_cache functions."""
         with pytest.raises(MiddlewareNotUsed):
             UserVisitMiddleware(get_response=lambda r: HttpResponse())

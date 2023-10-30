@@ -25,21 +25,21 @@ class TestUserVisitFunctions:
             ("", "192.168.0.1", "192.168.0.1"),
         ),
     )
-    def test_remote_addr(self, xff, remote, output):
+    def test_remote_addr(self, xff: str, remote: str, output: str) -> None:
         request = mock_request()
         request.headers["X-Forwarded-For"] = xff
         request.META["REMOTE_ADDR"] = remote
         assert parse_remote_addr(request) == output
 
     @pytest.mark.parametrize("ua_string", ("", "Chrome"))
-    def test_ua_string(self, ua_string):
+    def test_ua_string(self, ua_string: str) -> None:
         request = mock_request()
         request.headers["User-Agent"] = ua_string
         assert parse_ua_string(request) == ua_string
 
 
 class TestUserVisitManager:
-    def test_build(self):
+    def test_build(self) -> None:
         request = mock_request()
         timestamp = timezone.now()
         uv = UserVisit.objects.build(request, timestamp)
@@ -53,7 +53,7 @@ class TestUserVisitManager:
         assert uv.uuid is not None
         assert uv.pk is None
 
-    def test_build__REQUEST_CONTEXT_EXTRACTOR(self):
+    def test_build__REQUEST_CONTEXT_EXTRACTOR(self) -> None:
         request = mock_request()
         timestamp = timezone.now()
         extractor = lambda r: {"foo": "bar"}
@@ -63,15 +63,14 @@ class TestUserVisitManager:
 
 
 class TestUserVisit:
-
     UA_STRING = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
 
-    def test_user_agent(self):
+    def test_user_agent(self) -> None:
         uv = UserVisit(ua_string=TestUserVisit.UA_STRING)
         assert str(uv.user_agent) == "PC / Mac OS X 10.15.5 / Chrome 83.0.4103"
 
     @pytest.mark.django_db
-    def test_save(self):
+    def test_save(self) -> None:
         request = mock_request()
         request.user.save()
         timestamp = timezone.now()
@@ -79,11 +78,10 @@ class TestUserVisit:
         uv.hash = None
         uv.context = {"foo": "bar"}
         uv.save()
-        assert uv.hash is not None
         assert uv.hash == uv.md5().hexdigest()
 
     @pytest.mark.django_db
-    def test_unique(self):
+    def test_unique(self) -> None:
         """Check that visits on the same day but at different times, are rejected."""
         user = User.objects.create(username="Bob")
         timestamp1 = timezone.now()
@@ -106,7 +104,7 @@ class TestUserVisit:
             uv2.save()
 
     @pytest.mark.django_db
-    def test_get_latest_by(self):
+    def test_get_latest_by(self) -> None:
         """Check that latest() is ordered by timestamp, not id."""
         user = User.objects.create(username="Bob")
         timestamp1 = timezone.now()
@@ -128,7 +126,7 @@ class TestUserVisit:
         assert uv1.timestamp > uv2.timestamp
         assert user.user_visits.latest() == uv1
 
-    def test_md5(self):
+    def test_md5(self) -> None:
         """Check that MD5 changes when properties change."""
         uv = UserVisit(
             user=User(),

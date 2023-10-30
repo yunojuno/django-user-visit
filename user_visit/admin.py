@@ -4,7 +4,6 @@ from .models import UserVisit
 
 
 class UserVisitAdmin(admin.ModelAdmin):
-
     list_display = ("timestamp", "user", "session_key", "remote_addr", "user_agent")
     list_filter = ("timestamp",)
     search_fields = (
