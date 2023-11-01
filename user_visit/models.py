@@ -42,9 +42,9 @@ class UserVisitManager(models.Manager):
             context=REQUEST_CONTEXT_EXTRACTOR(request),
         )
         uv.hash = uv.md5().hexdigest()
-        uv.browser = uv.user_agent.get_browser()
-        uv.device = uv.user_agent.get_device()
-        uv.os = uv.user_agent.get_os()
+        uv.browser = uv.user_agent.get_browser()[:200]
+        uv.device = uv.user_agent.get_device()[:200]
+        uv.os = uv.user_agent.get_os()[:200]
         return uv
 
 
