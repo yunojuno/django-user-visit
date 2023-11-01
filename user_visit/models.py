@@ -88,17 +88,17 @@ class UserVisit(models.Model):
     browser = models.CharField(
         max_length=200,
         blank=True,
-        null=True,
+        default="",
     )
     device = models.CharField(
         max_length=200,
         blank=True,
-        null=True,
+        default="",
     )
     os = models.CharField(
         max_length=200,
         blank=True,
-        null=True,
+        default="",
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     hash = models.CharField(
