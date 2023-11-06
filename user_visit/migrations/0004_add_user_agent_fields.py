@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('user_visit', '0003_uservisit_context'),
+        ("user_visit", "0003_uservisit_context"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='uservisit',
-            name='browser',
-            field=models.CharField(blank=True, default='', max_length=200),
+            model_name="uservisit",
+            name="browser",
+            field=models.CharField(blank=True, default="", max_length=200),
         ),
         migrations.AddField(
-            model_name='uservisit',
-            name='device',
-            field=models.CharField(blank=True, default='', max_length=200),
+            model_name="uservisit",
+            name="device",
+            field=models.CharField(blank=True, default="", max_length=200),
         ),
         migrations.AddField(
-            model_name='uservisit',
-            name='os',
-            field=models.CharField(blank=True, default='', max_length=200),
+            model_name="uservisit",
+            name="os",
+            field=models.CharField(blank=True, default="", max_length=200),
         ),
     ]
