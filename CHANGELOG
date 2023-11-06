@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## 1.1 [Unreleased]
+## 2.0 [unreleased]
+
+* Add support for Django 4.1,4.2,5.0 and Python 3.11, 3.12
+* Replace flake8, isort with ruff.
+
+## 1.1
 
 * Added support for controlling logging duplicates (#20)

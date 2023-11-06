@@ -101,7 +101,7 @@ class UserVisit(models.Model):
         default="",
     )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    hash = models.CharField(
+    hash = models.CharField(  # noqa: A003
         max_length=32,
         help_text=_lazy("MD5 hash generated from request properties"),
         unique=True,
