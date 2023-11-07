@@ -91,11 +91,13 @@ class UserVisit(models.Model):
         default="",
     )
     device = models.CharField(
+        "Device type",
         max_length=200,
         blank=True,
         default="",
     )
     os = models.CharField(
+        "Operating System",
         max_length=200,
         blank=True,
         default="",
