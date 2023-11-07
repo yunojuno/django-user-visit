@@ -60,8 +60,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python: ["3.8", "3.9", "3.10", "3.11"]
-        django: ["32", "40", "41", "42", "50", "main"]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        django: ["32", "42", "50", "main"]
         exclude:
           - python: "3.8"
             django: "50"
@@ -73,7 +73,7 @@ jobs:
             django: "main"
 
     env:
-      TOXENV: py${{ matrix.python }}-django${{ matrix.django }}
+      TOXENV: django${{ matrix.django }}-py${{ matrix.python }}
 
     steps:
       - name: Check out the repository

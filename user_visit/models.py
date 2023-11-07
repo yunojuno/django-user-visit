@@ -81,7 +81,7 @@ class UserVisit(models.Model):
         blank=True,
     )
     ua_string = models.TextField(
-        "User agent (raw)",
+        _lazy("User agent (raw)"),
         help_text=_lazy("Client User-Agent HTTP header"),
         blank=True,
     )
@@ -91,11 +91,13 @@ class UserVisit(models.Model):
         default="",
     )
     device = models.CharField(
+        _lazy("Device type"),
         max_length=200,
         blank=True,
         default="",
     )
     os = models.CharField(
+        _lazy("Operating System"),
         max_length=200,
         blank=True,
         default="",
