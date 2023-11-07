@@ -6,6 +6,16 @@ Django app for recording daily user visits
 
 This package supports Python 3.8 and above and Django 3.2 and above.
 
+## Upgrading from v1 to v2
+
+v2 added three new denormalised fields extracted from the User Agent
+string - device, os, browser - to make it easier to analyse directly
+in the database.
+
+If you want to backfill historical data you will need to run the
+management command `update_user_visit_user_agent_data` after the
+upgrade.
+
 ---
 
 This app consists of middleware to record user visits, and a single
