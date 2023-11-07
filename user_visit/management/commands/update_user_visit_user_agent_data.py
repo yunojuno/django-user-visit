@@ -4,12 +4,15 @@ import argparse
 from typing import Any
 
 from django.core.management.base import BaseCommand
+from django.utils.translation import gettext as _, gettext_lazy as _lazy
 
 from user_visit.models import UserVisit
 
 
 class Command(BaseCommand):
-    help = "Sync browser, device and OS data missing from UserVisit"  # noqa: A003
+    help = _lazy(  # noqa: A003
+        "Sync browser, device and OS data missing from UserVisit"
+    )
 
     def add_arguments(self, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
@@ -17,7 +20,7 @@ class Command(BaseCommand):
             "--force",
             action="store_true",
             default=False,
-            help=(
+            help=_(
                 "Use the --force option to update all UserVisit "
                 "objects (defaults to backfilling empty records only)."
             ),
