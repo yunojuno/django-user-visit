@@ -3,7 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## 2.0
 
-* Add support for Django 4.1,4.2,5.0 and Python 3.11, 3.12
+**BREAKING CHANGES**
+
+* Add support for Django 4.1,4.2,5.0 and Python 3.11, 3.12.
+* Drop support for Python 3.7.
 * Replace flake8, isort with ruff.
 * Add browser, device, os denomralised fields (thanks @mboboc)
 
