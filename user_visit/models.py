@@ -32,8 +32,8 @@ class UserVisitManager(models.Manager):
     """Custom model manager for UserVisit objects."""
 
     def build(self, request: HttpRequest, timestamp: datetime.datetime) -> UserVisit:
-        """Build a new UserVisit object from a request, without saving it."""
-        uv = UserVisit(
+        """Build a new Model object from a request, without saving it."""
+        uv = self.model(
             user=request.user,
             timestamp=timestamp,
             session_key=request.session.session_key,
