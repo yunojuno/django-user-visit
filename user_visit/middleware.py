@@ -13,6 +13,9 @@ from user_visit.models import UserVisit
 
 from .settings import DUPLICATE_LOG_LEVEL, RECORDING_BYPASS, RECORDING_DISABLED
 
+if typing.TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,17 +36,16 @@ asave_user_visit = sync_to_async(save_user_visit)
 
 
 @sync_to_async
-def aget_user_from_request(request):
+def aget_user_from_request(
+    request: HttpRequest,
+) -> AbstractBaseUser | AnonymousUser | None:
     return request.user if bool(request.user) else None
 
 
 @sync_and_async_middleware
 def UserVisitMiddleware(  # noqa
-    get_response: typing.Callable[
-        [HttpRequest],
-        HttpResponse | typing.Coroutine[typing.Any, typing.Any, HttpResponse],
-    ],
-):
+    get_response: typing.Callable,
+) -> typing.Callable:
     if RECORDING_DISABLED:
         raise MiddlewareNotUsed("UserVisit recording has been disabled")
 
@@ -51,7 +53,7 @@ def UserVisitMiddleware(  # noqa
 
         async def middleware(request: HttpRequest) -> typing.Optional[HttpResponse]:
             user = await aget_user_from_request(request)
-            if user.is_anonymous:
+            if not user or user.is_anonymous:
                 return await typing.cast(typing.Awaitable, get_response(request))
 
             if RECORDING_BYPASS(request):
@@ -65,7 +67,7 @@ def UserVisitMiddleware(  # noqa
 
     else:
 
-        def middleware(request: HttpRequest) -> typing.Optional[HttpResponse]:
+        def middleware(request: HttpRequest) -> typing.Optional[HttpResponse]:  # type: ignore
             if request.user.is_anonymous:
                 return get_response(request)
 
