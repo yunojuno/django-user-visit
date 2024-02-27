@@ -1,5 +1,5 @@
 line-length = 88
-ignore = [
+lint.ignore = [
     "D100",  # Missing docstring in public module
     "D101",  # Missing docstring in public class
     "D102",  # Missing docstring in public method
@@ -22,7 +22,7 @@ ignore = [
     "D417",
     "D417",  # Missing argument description in the docstring
 ]
-select = [
+lint.select = [
     "A",  # flake8 builtins
     "C9", # mcabe
     "D",  # pydocstyle
@@ -34,13 +34,13 @@ select = [
     "W",  # pycodestype (warnings)
 ]
 
-[isort]
+[lint.isort]
 combine-as-imports = true
 
-[mccabe]
+[lint.mccabe]
 max-complexity = 8
 
-[per-file-ignores]
+[lint.per-file-ignores]
 "*tests/*" = [
     "D205",  # 1 blank line required between summary line and description
     "D400",  # First line should end with a period
