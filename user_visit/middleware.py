@@ -38,7 +38,7 @@ def aget_user_from_request(request):
 
 
 @sync_and_async_middleware
-def UserVisitMiddleware(
+def UserVisitMiddleware(  # noqa
     get_response: typing.Callable[
         [HttpRequest],
         HttpResponse | typing.Coroutine[typing.Any, typing.Any, HttpResponse],
