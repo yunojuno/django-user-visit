@@ -4,6 +4,7 @@ import typing
 
 import django.db
 from asgiref.sync import sync_to_async
+from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 from django.core.exceptions import MiddlewareNotUsed
 from django.http import HttpRequest, HttpResponse
 from django.utils import timezone
@@ -12,9 +13,6 @@ from django.utils.decorators import sync_and_async_middleware
 from user_visit.models import UserVisit
 
 from .settings import DUPLICATE_LOG_LEVEL, RECORDING_BYPASS, RECORDING_DISABLED
-
-if typing.TYPE_CHECKING:
-    from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 
 logger = logging.getLogger(__name__)
 
