@@ -17,6 +17,7 @@ classifiers = [
     "Framework :: Django :: 4.1",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
@@ -30,7 +31,7 @@ packages = [{ include = "user_visit" }]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-django = "^3.2 || ^4.0 || ^5.0"
+django = "^3.2 || ^4.0 || ^5.0 || ^5.1"
 user-agents = "^2.1"
 
 [tool.poetry.dev-dependencies]
