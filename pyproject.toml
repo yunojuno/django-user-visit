@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-user-visit"
-version = "2.0"
+version = "2.1"
 description = "Django app used to track user visits."
 license = "MIT"
 authors = ["YunoJuno <code@yunojuno.com>"]
@@ -12,29 +12,26 @@ documentation = "https://github.com/yunojuno/django-user-visit"
 classifiers = [
     "Environment :: Web Environment",
     "Framework :: Django",
-    "Framework :: Django :: 3.2",
-    "Framework :: Django :: 4.0",
-    "Framework :: Django :: 4.1",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
+    "Framework :: Django :: 5.1",
+    "Framework :: Django :: 5.2",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 packages = [{ include = "user_visit" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-django = "^3.2 || ^4.0 || ^5.0"
+python = "^3.10"
+django = "^4.2 || ^5.0"
 user-agents = "^2.1"
 
-[tool.poetry.dev-dependencies]
-black = {version = "*", allow-prereleases = true}
+[tool.poetry.group.dev.dependencies]
 coverage = "*"
 freezegun = "*"
 mypy = "*"
