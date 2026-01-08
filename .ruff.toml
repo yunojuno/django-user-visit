@@ -1,5 +1,7 @@
 line-length = 88
-lint.ignore = [
+
+[lint]
+ignore = [
     "D100",  # Missing docstring in public module
     "D101",  # Missing docstring in public class
     "D102",  # Missing docstring in public method
