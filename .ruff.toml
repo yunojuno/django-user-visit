@@ -24,7 +24,7 @@ ignore = [
     "D417",
     "D417",  # Missing argument description in the docstring
 ]
-lint.select = [
+select = [
     "A",  # flake8 builtins
     "C9", # mcabe
     "D",  # pydocstyle
