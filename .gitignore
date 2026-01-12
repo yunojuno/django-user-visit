@@ -7,3 +7,5 @@
 node_modules
 poetry.lock
 test.db
+.idea/
+q

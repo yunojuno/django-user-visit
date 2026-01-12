@@ -44,3 +44,27 @@ RECORDING_BYPASS = getattr(settings, "USER_VISIT_RECORDING_BYPASS", lambda r: Fa
 DUPLICATE_LOG_LEVEL: str = getattr(
     settings, "USER_VISIT_DUPLICATE_LOG_LEVEL", "warning"
 ).lower()
+
+
+# FORCE_ASYNC: Forces async processing even when middleware is called in sync context
+#
+# When True, the middleware will use async_to_sync to run async logic in the sync
+# code path. This is useful when you have legacy sync-only middleware in your chain
+# that prevents Django's ASGI handler from calling the async __acall__ method.
+#
+# When False (default), the middleware will:
+#   - Use pure async logic if called as async (get_response is async)
+#   - Use pure sync logic if called as sync (get_response is sync)
+#
+# Note: This setting has no effect on async request/response cycles - async views
+# and async-capable middleware will always use the async path naturally.
+#
+# Typical use cases:
+#   - Django projects with many legacy sync-only middleware
+#   - ASGI servers (Daphne, Uvicorn) where you want consistent async patterns
+#   - When you're migrating to async and want async patterns even in sync contexts
+#
+# Can be set via:
+#   - Django setting: USER_VISIT_FORCE_ASYNC = True
+#   - Environment variable: USER_VISIT_FORCE_ASYNC=1
+FORCE_ASYNC = _env_or_setting("USER_VISIT_FORCE_ASYNC", False, lambda x: bool(x))
