@@ -4,7 +4,7 @@ Django app for recording daily user visits
 
 #### Compatibility
 
-This package supports Python 3.12+ and Django 5.2-6.0.
+This package supports Python 3.12+ and Django 5.2-6.1.
 
 ## Upgrading from v1 to v2
 
