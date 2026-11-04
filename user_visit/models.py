@@ -71,7 +71,7 @@ class UserVisit(models.Model):
         help_text=_lazy("The time at which the first visit of the day was recorded"),
         default=timezone.now,
     )
-    session_key = models.CharField(help_text="Django session identifier", max_length=40)
+    session_key = models.CharField(help_text="Django session identifier", max_length=1024)
     remote_addr = models.CharField(
         help_text=_lazy(
             "Client IP address (from X-Forwarded-For HTTP header, "
